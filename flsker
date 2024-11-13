@@ -1,62 +1,43 @@
+from flask import Flask, render_template, request
 import subprocess
-import tkinter as tk
-from tkinter import messagebox
+import os
 
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/run_script', methods=['POST'])
 def run_script():
-    asset_class = asset_class_var.get()
-    jurisdiction = jurisdiction_var.get()
-    recon_type = recon_type_var.get()
-    recon_date = recon_date_var.get()
-
-    # Call the shell script using bash (adjust this if you are using WSL or Git Bash)
+    # Get form data
+    asset_class = request.form.get('asset_class')
+    jurisdiction = request.form.get('jurisdiction')
+    recon_type = request.form.get('recon_type')
+    recon_date = request.form.get('recon_date')
+    
+    # Validate inputs (optional but recommended)
+    if not asset_class or not jurisdiction or not recon_type or not recon_date:
+        return "All fields are required.", 400
+    
+    # Set the absolute path to the shell script
+    script_path = os.path.join(os.getcwd(), 'DynamicLoad.sh')
+    
     try:
-        command = ["bash", "DynamicLoad.sh", asset_class, jurisdiction, recon_type, recon_date]
-        result = subprocess.run(command, capture_output=True, text=True)
-        
-        # Show the result of the script in a message box
-        messagebox.showinfo("Script Output", result.stdout)
-        
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred: {e}")
+        # Call the shell script with parameters
+        result = subprocess.run(
+            ['sh', script_path, asset_class, jurisdiction, recon_type, recon_date],
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        # Capture the script output
+        output = result.stdout
+    except subprocess.CalledProcessError as e:
+        # Handle error if script fails
+        output = f"An error occurred: {e.stderr}"
+    
+    return render_template('result.html', output=output)
 
-# Create the main window
-root = tk.Tk()
-root.title("Shell Script Frontend")
-
-# Asset Class selection
-asset_class_var = tk.StringVar()
-asset_class_label = tk.Label(root, text="Select Asset Class:")
-asset_class_label.pack()
-asset_class_options = ["FX", "IR", "EQ", "CO", "CD"]
-asset_class_menu = tk.OptionMenu(root, asset_class_var, *asset_class_options)
-asset_class_menu.pack()
-
-# Jurisdiction selection
-jurisdiction_var = tk.StringVar()
-jurisdiction_label = tk.Label(root, text="Select Jurisdiction:")
-jurisdiction_label.pack()
-jurisdiction_options = ["JESA", "CANADA", "MAS", "MAS TA", "KMA", "HKTR", "ESMA", "MAS ASIC", "CFTC", "ASIC", "SEC", "FCA", "ASIC TA", "DSMATCH"]
-jurisdiction_menu = tk.OptionMenu(root, jurisdiction_var, *jurisdiction_options)
-jurisdiction_menu.pack()
-
-# Recon Type selection
-recon_type_var = tk.StringVar()
-recon_type_label = tk.Label(root, text="Select Recon Type:")
-recon_type_label.pack()
-recon_type_options = ["COMP", "POS"]
-recon_type_menu = tk.OptionMenu(root, recon_type_var, *recon_type_options)
-recon_type_menu.pack()
-
-# Date input
-recon_date_var = tk.StringVar()
-recon_date_label = tk.Label(root, text="Enter Recon Date (YYMMDD):")
-recon_date_label.pack()
-recon_date_entry = tk.Entry(root, textvariable=recon_date_var)
-recon_date_entry.pack()
-
-# Submit button
-submit_button = tk.Button(root, text="Run Script", command=run_script)
-submit_button.pack()
-
-# Run the GUI event loop
-root.mainloop()
+if __name__ == '__main__':
+    app.run(debug=True)
