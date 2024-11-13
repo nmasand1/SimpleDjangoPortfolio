@@ -1,0 +1,110 @@
+from flask import Flask, render_template, request
+import subprocess
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/run_script', methods=['POST'])
+def run_script():
+    # Get form data
+    asset_class = request.form.get('asset_class')
+    jurisdiction = request.form.get('jurisdiction')
+    recon_type = request.form.get('recon_type')
+    recon_date = request.form.get('recon_date')
+    
+    # Validate inputs (optional but recommended)
+    if not asset_class or not jurisdiction or not recon_type or not recon_date:
+        return "All fields are required.", 400
+    
+    # Call shell script with parameters
+    try:
+        result = subprocess.run(
+            ['sh', 'DynamicLoad.sh', asset_class, jurisdiction, recon_type, recon_date],
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        # Capture the script output
+        output = result.stdout
+    except subprocess.CalledProcessError as e:
+        # Handle error if script fails
+        output = f"An error occurred: {e.stderr}"
+    
+    return render_template('result.html', output=output)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+index
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run DynamicLoad Script</title>
+</head>
+<body>
+    <h1>Run DynamicLoad Script</h1>
+    <form action="/run_script" method="POST">
+        <label for="asset_class">Asset Class:</label>
+        <select name="asset_class" id="asset_class" required>
+            <option value="FX">FX</option>
+            <option value="IR">IR</option>
+            <option value="EQ">EQ</option>
+            <option value="CO">CO</option>
+            <option value="CD">CD</option>
+        </select>
+        <br><br>
+
+        <label for="jurisdiction">Jurisdiction:</label>
+        <select name="jurisdiction" id="jurisdiction" required>
+            <option value="JFSA">JFSA</option>
+            <option value="CANADA">CANADA</option>
+            <option value="MAS">MAS</option>
+            <option value="MAS TA">MAS TA</option>
+            <option value="HKMA">HKMA</option>
+            <option value="HKTR">HKTR</option>
+            <option value="ESMA">ESMA</option>
+            <option value="CFTC">CFTC</option>
+            <option value="SEC">SEC</option>
+            <option value="FCA">FCA</option>
+            <option value="DSMATCH">DSMATCH</option>
+        </select>
+        <br><br>
+
+        <label for="recon_type">Recon Type:</label>
+        <select name="recon_type" id="recon_type" required>
+            <option value="COMP">COMP</option>
+            <option value="POS">POS</option>
+        </select>
+        <br><br>
+
+        <label for="recon_date">Recon Date (YYMMDD):</label>
+        <input type="text" id="recon_date" name="recon_date" required pattern="\d{6}">
+        <br><br>
+
+        <button type="submit">Run Script</button>
+    </form>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Output</title>
+</head>
+<body>
+    <h1>Script Output</h1>
+    <pre>{{ output }}</pre>
+    <a href="/">Run Another</a>
+</body>
+</html>
