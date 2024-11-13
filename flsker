@@ -2,62 +2,57 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 
-# Function to run the shell script
-def run_script():
-    asset_class = asset_class_entry.get()
-    jurisdiction = jurisdiction_entry.get()
-    recon_type = recon_type_entry.get()
-    recon_date = recon_date_entry.get()
+# Function to call the shell script with the given inputs
+def call_shell_script():
+    asset_class = asset_class_var.get()
+    jurisdiction = jurisdiction_var.get()
+    recon_type = recon_type_var.get()
+    recon_date = recon_date_var.get()
 
     # Validate inputs
     if not asset_class or not jurisdiction or not recon_type or not recon_date:
-        messagebox.showerror("Input Error", "All fields are required.")
+        messagebox.showerror("Input Error", "All fields are required!")
         return
-    
+
+    # Construct the shell command
+    command = f"sh DynamicLoad.sh {asset_class} {jurisdiction} {recon_type} {recon_date}"
+
     try:
-        # Call shell script with parameters
-        result = subprocess.run(
-            ['sh', 'DynamicLoad.sh', asset_class, jurisdiction, recon_type, recon_date],
-            check=True,
-            text=True,
-            capture_output=True
-        )
+        # Run the shell script
+        result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
         output = result.stdout
+        messagebox.showinfo("Success", f"Script executed successfully!\n\nOutput:\n{output}")
     except subprocess.CalledProcessError as e:
-        # Handle error if script fails
-        output = f"An error occurred: {e.stderr}"
-    
-    # Show the result in a message box or a text widget
-    messagebox.showinfo("Script Output", output)
+        messagebox.showerror("Execution Error", f"An error occurred while executing the script:\n{e.stderr}")
 
-# Setting up the main window
+# Create the main window
 root = tk.Tk()
-root.title("Run Shell Script")
+root.title("Dynamic Load Script Frontend")
 
-# Create labels and entries for each input field
-asset_class_label = tk.Label(root, text="Asset Class:")
-asset_class_label.grid(row=0, column=0, padx=10, pady=10)
-asset_class_entry = tk.Entry(root)
-asset_class_entry.grid(row=0, column=1, padx=10, pady=10)
+# Create the labels and dropdown menus for inputs
+tk.Label(root, text="Asset Class:").grid(row=0, column=0, padx=10, pady=10)
+asset_class_var = tk.StringVar()
+asset_class_menu = tk.OptionMenu(root, asset_class_var, "FX", "IR", "EQ", "CO", "CD")
+asset_class_menu.grid(row=0, column=1, padx=10, pady=10)
 
-jurisdiction_label = tk.Label(root, text="Jurisdiction:")
-jurisdiction_label.grid(row=1, column=0, padx=10, pady=10)
-jurisdiction_entry = tk.Entry(root)
-jurisdiction_entry.grid(row=1, column=1, padx=10, pady=10)
+tk.Label(root, text="Jurisdiction:").grid(row=1, column=0, padx=10, pady=10)
+jurisdiction_var = tk.StringVar()
+jurisdiction_menu = tk.OptionMenu(root, jurisdiction_var, "JESA", "CANADA", "MAS", "MAS TA", "KMA", "HKTR", "ESMA", "MAS ASIC", "CFTC", "ASIC", "SEC", "FCA", "ASIC TA", "DSMATCH")
+jurisdiction_menu.grid(row=1, column=1, padx=10, pady=10)
 
-recon_type_label = tk.Label(root, text="Recon Type:")
-recon_type_label.grid(row=2, column=0, padx=10, pady=10)
-recon_type_entry = tk.Entry(root)
-recon_type_entry.grid(row=2, column=1, padx=10, pady=10)
+tk.Label(root, text="Recon Type:").grid(row=2, column=0, padx=10, pady=10)
+recon_type_var = tk.StringVar()
+recon_type_menu = tk.OptionMenu(root, recon_type_var, "COMP", "POS")
+recon_type_menu.grid(row=2, column=1, padx=10, pady=10)
 
-recon_date_label = tk.Label(root, text="Recon Date:")
-recon_date_label.grid(row=3, column=0, padx=10, pady=10)
-recon_date_entry = tk.Entry(root)
+tk.Label(root, text="Recon Date (YYMMDD):").grid(row=3, column=0, padx=10, pady=10)
+recon_date_var = tk.StringVar()
+recon_date_entry = tk.Entry(root, textvariable=recon_date_var)
 recon_date_entry.grid(row=3, column=1, padx=10, pady=10)
 
-# Button to run the script
-run_button = tk.Button(root, text="Run Script", command=run_script)
-run_button.grid(row=4, column=0, columnspan=2, pady=20)
+# Create a button to trigger the shell script execution
+run_button = tk.Button(root, text="Run Script", command=call_shell_script)
+run_button.grid(row=4, columnspan=2, padx=10, pady=20)
 
 # Start the Tkinter event loop
 root.mainloop()
