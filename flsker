@@ -1,65 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Run DynamicLoad Script</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Run DynamicLoad Script</h1>
-        <form action="/run_script" method="POST" class="form">
-            <div class="form-group">
-                <label for="asset_class">Asset Class:</label>
-                <select name="asset_class" id="asset_class" required>
-                    <option value="FX">FX</option>
-                    <option value="IR">IR</option>
-                    <option value="EQ">EQ</option>
-                    <option value="CO">CO</option>
-                    <option value="CD">CD</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="jurisdiction">Jurisdiction:</label>
-                <select name="jurisdiction" id="jurisdiction" required>
-                    <option value="JFSA">JFSA</option>
-                    <option value="CANADA">CANADA</option>
-                    <option value="MAS">MAS</option>
-                    <option value="MAS TA">MAS TA</option>
-                    <option value="HKMA">HKMA</option>
-                    <option value="HKTR">HKTR</option>
-                    <option value="ESMA">ESMA</option>
-                    <option value="CFTC">CFTC</option>
-                    <option value="SEC">SEC</option>
-                    <option value="FCA">FCA</option>
-                    <option value="DSMATCH">DSMATCH</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="recon_type">Recon Type:</label>
-                <select name="recon_type" id="recon_type" required>
-                    <option value="COMP">COMP</option>
-                    <option value="POS">POS</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="recon_date">Recon Date (YYMMDD):</label>
-                <input type="text" id="recon_date" name="recon_date" required pattern="\d{6}">
-            </div>
-
-            <button type="submit">Run Script</button>
-        </form>
-    </div>
-</body>
-</html>
-
-
-
-
 /* style.css */
 
 body {
@@ -131,4 +69,3 @@ button {
 button:hover {
     background-color: #45a049;
 }
-
