@@ -1,71 +1,63 @@
-/* style.css */
+import tkinter as tk
+from tkinter import messagebox
+import subprocess
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f9;
-    color: #333;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+# Function to run the shell script
+def run_script():
+    asset_class = asset_class_entry.get()
+    jurisdiction = jurisdiction_entry.get()
+    recon_type = recon_type_entry.get()
+    recon_date = recon_date_entry.get()
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    padding: 30px;
-    background-color: #fff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
-}
+    # Validate inputs
+    if not asset_class or not jurisdiction or not recon_type or not recon_date:
+        messagebox.showerror("Input Error", "All fields are required.")
+        return
+    
+    try:
+        # Call shell script with parameters
+        result = subprocess.run(
+            ['sh', 'DynamicLoad.sh', asset_class, jurisdiction, recon_type, recon_date],
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        output = result.stdout
+    except subprocess.CalledProcessError as e:
+        # Handle error if script fails
+        output = f"An error occurred: {e.stderr}"
+    
+    # Show the result in a message box or a text widget
+    messagebox.showinfo("Script Output", output)
 
-h1 {
-    font-size: 1.8em;
-    color: #4CAF50;
-    margin-bottom: 20px;
-}
+# Setting up the main window
+root = tk.Tk()
+root.title("Run Shell Script")
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+# Create labels and entries for each input field
+asset_class_label = tk.Label(root, text="Asset Class:")
+asset_class_label.grid(row=0, column=0, padx=10, pady=10)
+asset_class_entry = tk.Entry(root)
+asset_class_entry.grid(row=0, column=1, padx=10, pady=10)
 
-.form-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+jurisdiction_label = tk.Label(root, text="Jurisdiction:")
+jurisdiction_label.grid(row=1, column=0, padx=10, pady=10)
+jurisdiction_entry = tk.Entry(root)
+jurisdiction_entry.grid(row=1, column=1, padx=10, pady=10)
 
-.form-group label {
-    font-size: 1em;
-    margin-right: 15px;
-    width: 150px;
-    text-align: right;
-}
+recon_type_label = tk.Label(root, text="Recon Type:")
+recon_type_label.grid(row=2, column=0, padx=10, pady=10)
+recon_type_entry = tk.Entry(root)
+recon_type_entry.grid(row=2, column=1, padx=10, pady=10)
 
-select, input[type="text"] {
-    padding: 10px;
-    width: 250px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1em;
-}
+recon_date_label = tk.Label(root, text="Recon Date:")
+recon_date_label.grid(row=3, column=0, padx=10, pady=10)
+recon_date_entry = tk.Entry(root)
+recon_date_entry.grid(row=3, column=1, padx=10, pady=10)
 
-button {
-    padding: 12px;
-    font-size: 1.1em;
-    font-weight: bold;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+# Button to run the script
+run_button = tk.Button(root, text="Run Script", command=run_script)
+run_button.grid(row=4, column=0, columnspan=2, pady=20)
 
-button:hover {
-    background-color: #45a049;
-}
+# Start the Tkinter event loop
+root.mainloop()
