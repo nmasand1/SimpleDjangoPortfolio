@@ -1,43 +1,71 @@
-from flask import Flask, render_template, request
-import subprocess
-import os
+/* style.css */
 
-app = Flask(__name__)
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
 
-@app.route('/run_script', methods=['POST'])
-def run_script():
-    # Get form data
-    asset_class = request.form.get('asset_class')
-    jurisdiction = request.form.get('jurisdiction')
-    recon_type = request.form.get('recon_type')
-    recon_date = request.form.get('recon_date')
-    
-    # Validate inputs (optional but recommended)
-    if not asset_class or not jurisdiction or not recon_type or not recon_date:
-        return "All fields are required.", 400
-    
-    # Set the absolute path to the shell script
-    script_path = os.path.join(os.getcwd(), 'DynamicLoad.sh')
-    
-    try:
-        # Call the shell script with parameters
-        result = subprocess.run(
-            ['sh', script_path, asset_class, jurisdiction, recon_type, recon_date],
-            check=True,
-            text=True,
-            capture_output=True
-        )
-        # Capture the script output
-        output = result.stdout
-    except subprocess.CalledProcessError as e:
-        # Handle error if script fails
-        output = f"An error occurred: {e.stderr}"
-    
-    return render_template('result.html', output=output)
+h1 {
+    font-size: 1.8em;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
 
-if __name__ == '__main__':
-    app.run(debug=True)
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-group label {
+    font-size: 1em;
+    margin-right: 15px;
+    width: 150px;
+    text-align: right;
+}
+
+select, input[type="text"] {
+    padding: 10px;
+    width: 250px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+button {
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
